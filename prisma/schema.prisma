@@ -19,9 +19,10 @@ datasource db {
 model User {
   id                 String     @id @default(uuid()) // convert to string
   email              String     @unique
+  password           String
   role               UserRole
-  needPasswordChange Boolean
-  status             UserStatus
+  needPasswordChange Boolean    @default(false)
+  status             UserStatus @default(ACTIVE)
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @updatedAt
   admin              Admin?
@@ -35,11 +36,12 @@ model Admin {
   email         String   @unique
   profilePhoto  String?
   contactNumbar String
-  isDeleted     Boolean
+  isDeleted     Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   use User @relation(fields: [email], references: [email]) //relation added
+
   @@map("admins")
 }
 
