@@ -1,19 +1,25 @@
+//TODO: 1- if searchTerm then show searchTerm data else show all data
+//TODO: 2- Search by name or email contains
+//TODO: 3- if filterData then show filterData data
+//TODO: 4- dymaic way to sorting data
+//TODO: 5- formula = (page - 1) * limit
+
 import { Prisma, PrismaClient } from "../../generated/prisma";
+import { paginationHelpers } from "../../utils/pagination";
 import { searchAbleFields } from "./admin.constant";
 
 const prisma = new PrismaClient();
 
 const getAllAdminsFromDB = async (params: any, option: any) => {
-  const { limit, page } = option;
+  const { limit, page, sortBy, sortOrder, skip } = paginationHelpers(option);
   const { searchTerm, ...filterData } = params;
 
-  // const searchTerm = params?.searchTerm || "";
   const andConditions: Prisma.AdminWhereInput[] = [];
 
-  // if searchTerm then show searchTerm data else show all data
+  //*1
   if (searchTerm) {
     andConditions.push({
-      // Search by name or email contains
+      //*2
       OR: searchAbleFields.map((field) => ({
         [field]: {
           contains: searchTerm,
@@ -23,7 +29,7 @@ const getAllAdminsFromDB = async (params: any, option: any) => {
     });
   }
 
-  // if filterData then show filterData data
+  //*3
   if (Object.keys(filterData).length > 0) {
     andConditions.push({
       AND: Object.keys(filterData).map((key) => ({
@@ -40,11 +46,15 @@ const getAllAdminsFromDB = async (params: any, option: any) => {
 
   const result = await prisma.admin.findMany({
     where,
-    orderBy: {
-      createdAt: "desc", // Optional: order newest first
-    },
-    skip: (Number(page) - 1) * limit, // formula = (page - 1) * limit
-    take: Number(limit),
+    //*4
+    orderBy:
+      option.sortBy && option.sortOrder
+        ? {
+            [option.sortBy]: option.sortOrder,
+          }
+        : { createdAt: "asc" },
+    skip,
+    take: limit,
   });
 
   return result;
