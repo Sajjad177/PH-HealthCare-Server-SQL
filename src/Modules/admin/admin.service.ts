@@ -4,11 +4,10 @@
 //TODO: 4- dymaic way to sorting data
 //TODO: 5- formula = (page - 1) * limit
 
-import { Prisma, PrismaClient } from "../../generated/prisma";
+import { Admin, Prisma, PrismaClient } from "../../generated/prisma";
+import { prisma } from "../../shared/prisma";
 import { paginationHelpers } from "../../utils/pagination";
 import { searchAbleFields } from "./admin.constant";
-
-const prisma = new PrismaClient();
 
 const getAllAdminsFromDB = async (params: any, option: any) => {
   const { limit, page, sortBy, sortOrder, skip } = paginationHelpers(option);
@@ -57,9 +56,45 @@ const getAllAdminsFromDB = async (params: any, option: any) => {
     take: limit,
   });
 
+  // total data
+  const total = await prisma.admin.count({
+    where,
+  });
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
+
+const singleDataFromDB = async (id: string) => {
+  const result = await prisma.admin.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  return result;
+};
+
+//* we cannot update foreign relational data in prisma. There are relation with email in user table. So we cannot update email.......
+const updateDataInDB = async (id: string, payload: Partial<Admin>) => {
+  const result = await prisma.admin.update({
+    where: {
+      id,
+    },
+    data: payload,
+  });
+
   return result;
 };
 
 export const adminService = {
   getAllAdminsFromDB,
+  singleDataFromDB,
+  updateDataInDB,
 };

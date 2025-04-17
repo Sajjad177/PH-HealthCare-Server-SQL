@@ -13,7 +13,8 @@ const getAllAdmins = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: "Admins fetched successfully",
-      data: result,
+      meta: result.meta,
+      data: result.data,
     });
   } catch (error: any) {
     res.status(500).json({
@@ -24,6 +25,46 @@ const getAllAdmins = async (req: Request, res: Response) => {
   }
 };
 
+const getSingleData = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await adminService.singleDataFromDB(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Admin fetched successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error?.message || "Error fetching single admin",
+      error: error,
+    });
+  }
+};
+
+const updateData = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await adminService.updateDataInDB(id, req.body);
+
+    res.status(200).json({
+      success: true,
+      message: "Admin updated successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error?.message || "Cannot update admin",
+      error: error,
+    });
+  }
+};
+
 export const adminController = {
   getAllAdmins,
+  getSingleData,
+  updateData,
 };
