@@ -1,10 +1,14 @@
 import { Request, Response } from "express";
-
 import { adminService } from "./admin.service";
+import pick from "../../shared/pick";
+import { adminFilterFields } from "./admin.constant";
 
 const getAllAdmins = async (req: Request, res: Response) => {
   try {
-    const result = await adminService.getAllAdminsFromDB(req.query);
+    // there are filters
+    const filters = pick(req.query, adminFilterFields);
+    const option = pick(req.query, ["limit", "page"]);
+    const result = await adminService.getAllAdminsFromDB(filters, option);
 
     res.status(200).json({
       success: true,

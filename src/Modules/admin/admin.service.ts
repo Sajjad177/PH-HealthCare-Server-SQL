@@ -1,13 +1,14 @@
 import { Prisma, PrismaClient } from "../../generated/prisma";
+import { searchAbleFields } from "./admin.constant";
 
 const prisma = new PrismaClient();
 
-const getAllAdminsFromDB = async (params: any) => {
+const getAllAdminsFromDB = async (params: any, option: any) => {
+  const { limit, page } = option;
   const { searchTerm, ...filterData } = params;
 
   // const searchTerm = params?.searchTerm || "";
   const andConditions: Prisma.AdminWhereInput[] = [];
-  const searchAbleFields = ["name", "email"];
 
   // if searchTerm then show searchTerm data else show all data
   if (searchTerm) {
@@ -42,6 +43,8 @@ const getAllAdminsFromDB = async (params: any) => {
     orderBy: {
       createdAt: "desc", // Optional: order newest first
     },
+    skip: (Number(page) - 1) * limit, // formula = (page - 1) * limit
+    take: Number(limit),
   });
 
   return result;
