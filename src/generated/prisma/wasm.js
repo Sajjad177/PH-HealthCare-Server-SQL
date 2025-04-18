@@ -162,7 +162,8 @@ exports.UserRole = exports.$Enums.UserRole = {
 
 exports.UserStatus = exports.$Enums.UserStatus = {
   ACTIVE: 'ACTIVE',
-  INACTIVE: 'INACTIVE'
+  BLOCKED: 'BLOCKED',
+  DELETED: 'DELETED'
 };
 
 exports.Prisma.ModelName = {
