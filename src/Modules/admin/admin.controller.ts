@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { adminService } from "./admin.service";
 import pick from "../../shared/pick";
 import { adminFilterFields } from "./admin.constant";
@@ -28,7 +28,11 @@ const getAllAdmins = async (req: Request, res: Response) => {
   }
 };
 
-const getSingleData = async (req: Request, res: Response) => {
+const getSingleData = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { id } = req.params;
     const result = await adminService.singleDataFromDB(id);
@@ -40,15 +44,11 @@ const getSingleData = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error?.message || "Error fetching single admin",
-      error: error,
-    });
+    next(error);
   }
 };
 
-const updateData = async (req: Request, res: Response) => {
+const updateData = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     const result = await adminService.updateDataInDB(id, req.body);
@@ -60,15 +60,11 @@ const updateData = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error?.message || "Cannot update admin",
-      error: error,
-    });
+    next(error);
   }
 };
 
-const deletedData = async (req: Request, res: Response) => {
+const deletedData = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     const result = await adminService.deletedDataFromDB(id);
@@ -80,15 +76,11 @@ const deletedData = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error?.message || "Cannot delete admin",
-      error: error,
-    });
+    next(error);
   }
 };
 
-const softDeletedData = async (req: Request, res: Response) => {
+const softDeletedData = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     const result = await adminService.deletedDataFromDB(id);
@@ -100,11 +92,7 @@ const softDeletedData = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error?.message || "Cannot delete admin",
-      error: error,
-    });
+    next(error);
   }
 };
 
