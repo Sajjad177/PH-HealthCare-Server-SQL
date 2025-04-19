@@ -2,9 +2,11 @@ import cors from "cors";
 import express, { Application } from "express";
 import router from "./routes";
 import globalErrorHandler from "./middlewares/globalErrorHandler";
+import cookieParser from "cookie-parser";
 
 const app: Application = express();
 app.use(cors());
+app.use(cookieParser());
 
 // parse requests of content-type - application/json
 app.use(express.json());
