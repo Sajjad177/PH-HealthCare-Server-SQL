@@ -4,97 +4,70 @@ import pick from "../../shared/pick";
 import { adminFilterFields } from "./admin.constant";
 import { sendResponse } from "../../utils/sendResponse";
 import { StatusCodes } from "http-status-codes";
+import { catchAsync } from "../../utils/catchAsync";
 
-const getAllAdmins = async (req: Request, res: Response) => {
-  try {
-    // there are filters
-    const filters = pick(req.query, adminFilterFields);
-    const option = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
-    const result = await adminService.getAllAdminsFromDB(filters, option);
+const getAllAdmins = catchAsync(async (req, res) => {
+  // there are filters
+  const filters = pick(req.query, adminFilterFields);
+  const option = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+  const result = await adminService.getAllAdminsFromDB(filters, option);
 
-    sendResponse(res, {
-      statusCode: StatusCodes.OK,
-      success: true,
-      message: "Admins fetched successfully",
-      meta: result.meta,
-      data: result.data,
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error?.message || "Error fetching admins",
-      error: error,
-    });
-  }
-};
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Admins fetched successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
 
-const getSingleData = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { id } = req.params;
-    const result = await adminService.singleDataFromDB(id);
+const getSingleData = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await adminService.singleDataFromDB(id);
 
-    sendResponse(res, {
-      statusCode: StatusCodes.OK,
-      success: true,
-      message: "Admin fetched successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-};
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Admin fetched successfully",
+    data: result,
+  });
+});
 
-const updateData = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { id } = req.params;
-    const result = await adminService.updateDataInDB(id, req.body);
+const updateData = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await adminService.updateDataInDB(id, req.body);
 
-    sendResponse(res, {
-      statusCode: StatusCodes.OK,
-      success: true,
-      message: "Admin updated successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-};
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Admin updated successfully",
+    data: result,
+  });
+});
 
-const deletedData = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { id } = req.params;
-    const result = await adminService.deletedDataFromDB(id);
+const deletedData = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await adminService.deletedDataFromDB(id);
 
-    sendResponse(res, {
-      statusCode: StatusCodes.OK,
-      success: true,
-      message: "Admin deleted successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-};
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Admin deleted successfully",
+    data: result,
+  });
+});
 
-const softDeletedData = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { id } = req.params;
-    const result = await adminService.deletedDataFromDB(id);
+const softDeletedData = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await adminService.deletedDataFromDB(id);
 
-    sendResponse(res, {
-      statusCode: StatusCodes.OK,
-      success: true,
-      message: "Admin deleted successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-};
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Admin deleted successfully",
+    data: result,
+  });
+});
 
 export const adminController = {
   getAllAdmins,
