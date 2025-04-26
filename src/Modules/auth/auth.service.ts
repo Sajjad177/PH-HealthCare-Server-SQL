@@ -184,8 +184,6 @@ const resetUserPassword = async (
     throw new AppError("Invalid or expired token", StatusCodes.FORBIDDEN);
   }
 
-  console.log("isValidToken", isValidToken);
-
   const hashedPassword = await bcrypt.hash(payload.password, 10);
 
   await prisma.user.update({

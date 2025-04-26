@@ -3,7 +3,7 @@ import { userService } from "./user.service";
 
 const createAdmin = async (req: Request, res: Response) => {
   try {
-    const result = await userService.createAdminInDB(req.body);
+    const result = await userService.createAdminInDB(req.body, req.file);
 
     res.status(200).json({
       success: true,
@@ -18,7 +18,6 @@ const createAdmin = async (req: Request, res: Response) => {
     });
   }
 };
-
 
 export const userController = {
   createAdmin,

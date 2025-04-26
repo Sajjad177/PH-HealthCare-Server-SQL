@@ -13,4 +13,10 @@ export default {
   EMAIL_HOST: process.env.EMAIL_HOST,
   EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
   NODE_ENV: process.env.NODE_ENV,
+
+  cloudinary: {
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  },
 };

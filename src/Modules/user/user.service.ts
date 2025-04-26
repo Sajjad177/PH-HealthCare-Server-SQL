@@ -1,9 +1,19 @@
 import { PrismaClient, UserRole } from "../../generated/prisma";
 import bcrypt from "bcrypt";
 import { prisma } from "../../shared/prisma";
+import { sendImageToCloudinary } from "../../utils/imageUploader";
 
-const createAdminInDB = async (payload: any) => {
+const createAdminInDB = async (payload: any, file: any) => {
   const hashedPassword = await bcrypt.hash(payload.password, 10);
+
+  if (file) {
+    const { secure_url } = await sendImageToCloudinary(
+      file.filename,
+      file.path
+    );
+
+    payload.admin.profilePhoto = secure_url as string;
+  }
 
   const userData = {
     email: payload.admin.email,
