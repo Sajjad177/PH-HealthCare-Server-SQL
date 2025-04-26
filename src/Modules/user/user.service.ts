@@ -37,6 +37,71 @@ const createAdminInDB = async (payload: any, file: any) => {
   return result;
 };
 
+const createDoctorInDB = async (payload: any, file: any) => {
+  const hashedPassword = await bcrypt.hash(payload.password, 10);
+
+  if (file) {
+    const { secure_url } = await sendImageToCloudinary(
+      file.filename,
+      file.path
+    );
+
+    payload.doctor.profilePhoto = secure_url as string;
+  }
+
+  const userData = {
+    email: payload.doctor.email,
+    password: hashedPassword,
+    role: UserRole.DOCTOR,
+  };
+
+  //* In NOTE [user.txt]: 1 explain the transaction
+  const result = await prisma.$transaction(async (transactionClient) => {
+    // Create a new user in the 'user' table
+    await transactionClient.user.create({
+      data: userData,
+    });
+    // Create a new admin in the 'admin' table
+    const createDoctor = await transactionClient.doctor.create({
+      data: payload.doctor,
+    });
+    return createDoctor;
+  });
+
+  return result;
+};
+
+const createPatientInDB = async (payload: any, file: any) => {
+  const hashedPassword = await bcrypt.hash(payload.password, 10);
+
+  if (file) {
+    const { secure_url } = await sendImageToCloudinary(
+      file.filename,
+      file.path
+    );
+    payload.patient.profilePhoto = secure_url as string;
+  }
+
+  const userData = {
+    email: payload.patient.email,
+    password: hashedPassword,
+    role: UserRole.PATIENT,
+  };
+
+  const result = await prisma.$transaction(async (transactionClient) => {
+    await transactionClient.user.create({
+      data: userData,
+    });
+    const createPatient = await transactionClient.patient.create({
+      data: payload.patient,
+    });
+    return createPatient;
+  });
+  return result;
+};
+
 export const userService = {
   createAdminInDB,
+  createDoctorInDB,
+  createPatientInDB,
 };

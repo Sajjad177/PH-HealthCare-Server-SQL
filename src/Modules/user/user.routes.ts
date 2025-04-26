@@ -9,7 +9,7 @@ import { userValidation } from "./user.validation";
 const router = express.Router();
 
 router.post(
-  "/",
+  "/create-admin",
   auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
   upload.single("file"),
   (req: Request, res: Response, next: NextFunction) => {
@@ -18,6 +18,30 @@ router.post(
   },
   validateRequest(userValidation.createAdmin),
   userController.createAdmin
+);
+
+router.post(
+  "/create-doctor",
+  auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+  upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    next();
+  },
+  validateRequest(userValidation.createDoctor),
+  userController.createDoctor
+);
+
+
+router.post(
+  "/create-patient",
+  upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    next();
+  },
+  validateRequest(userValidation.createPatient),
+  userController.createPatient
 );
 
 export const userRouter = router;

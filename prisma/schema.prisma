@@ -26,9 +26,10 @@ model User {
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @updatedAt
   admin              Admin?
+  doctor             doctor?
+  Patient            Patient?
 
   @@map("users")
-
 }
 
 model Admin {
@@ -46,6 +47,47 @@ model Admin {
   @@map("admins")
 }
 
+model doctor {
+  id                 String   @id @default(uuid())
+  name               String
+  email              String   @unique
+  profilePhoto       String?
+  contactNumbar      String
+  address            String?
+  registrationNumber String
+  experience         Int      @default(0)
+  gender             Gender
+  appointFee         Int
+  qualification      String
+  currentWoringPlace String?
+  designation        String?
+  isDeleted          Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  use User @relation(fields: [email], references: [email])
+
+  @@map("doctors")
+}
+
+model Patient {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  profilePhoto  String?
+  contactNumbar String
+  address       String?
+  gender        Gender
+  age           Int
+  isDeleted     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  use User @relation(fields: [email], references: [email])
+
+  @@map("patients")
+}
+
 enum UserRole {
   SUPER_ADMIN
   ADMIN
@@ -57,4 +99,9 @@ enum UserStatus {
   ACTIVE
   BLOCKED
   DELETED
+}
+
+enum Gender {
+  MALE
+  FEMALE
 }
