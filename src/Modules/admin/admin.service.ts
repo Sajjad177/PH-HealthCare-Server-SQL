@@ -24,7 +24,6 @@ const getAllAdminsFromDB = async (
     option as any
   );
   const { searchTerm, ...filterData } = params;
-
   const andConditions: Prisma.AdminWhereInput[] = [];
 
   //*1

@@ -1,7 +1,11 @@
-import { PrismaClient, UserRole } from "../../generated/prisma";
+import { Prisma, PrismaClient, UserRole, UserStatus } from "../../generated/prisma";
 import bcrypt from "bcrypt";
 import { prisma } from "../../shared/prisma";
 import { sendImageToCloudinary } from "../../utils/imageUploader";
+import { IPagenationOptions } from "../../interface/pagination";
+import { paginationHelpers } from "../../utils/pagination";
+import { searchAbleFields } from "../admin/admin.constant";
+import { userSearchAbleFields } from "./user.constant";
 
 const createAdminInDB = async (payload: any, file: any) => {
   const hashedPassword = await bcrypt.hash(payload.password, 10);
@@ -100,8 +104,105 @@ const createPatientInDB = async (payload: any, file: any) => {
   return result;
 };
 
+const getAllUsersFromDB = async (params: any, option: IPagenationOptions) => {
+  const { limit, page, sortBy, sortOrder, skip } = paginationHelpers(
+    option as any
+  );
+  const { searchTerm, ...filterData } = params;
+  const andConditions: Prisma.UserWhereInput[] = [];
+
+  //*1
+  if (searchTerm) {
+    andConditions.push({
+      //*2
+      OR: userSearchAbleFields.map((field) => ({
+        [field]: {
+          contains: searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+
+  //*3
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.keys(filterData).map((key) => ({
+        [key]: {
+          equals: (filterData as any)[key],
+        },
+      })),
+    });
+  }
+
+  const where: Prisma.UserWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const result = await prisma.user.findMany({
+    where,
+    //*4
+    orderBy:
+      option.sortBy && option.sortOrder
+        ? {
+            [option.sortBy]: option.sortOrder,
+          }
+        : { createdAt: "asc" },
+    skip,
+    take: limit,
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      needPasswordChange: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+      admin: true,
+      doctor: true,
+      Patient: true,
+    },
+  });
+
+  // total data
+  const total = await prisma.user.count({
+    where,
+  });
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
+
+const updateStatusFromDB = async (
+  id: string,
+  payload: { status: UserStatus }
+) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  const result = await prisma.user.update({
+    where: {
+      id: userData.id,
+    },
+    data: {
+      status: payload.status,
+    },
+  });
+  return result;
+};
+
 export const userService = {
   createAdminInDB,
   createDoctorInDB,
   createPatientInDB,
+  getAllUsersFromDB,
+  updateStatusFromDB,
 };

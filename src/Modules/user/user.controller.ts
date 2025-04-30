@@ -3,6 +3,9 @@ import { userService } from "./user.service";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { StatusCodes } from "http-status-codes";
+import pick from "../../shared/pick";
+import { adminFilterFields } from "../admin/admin.constant";
+import { userFilterableFields } from "./user.constant";
 
 const createAdmin = async (req: Request, res: Response) => {
   try {
@@ -44,8 +47,36 @@ const createPatient = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllUsers = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, userFilterableFields);
+  const option = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+  const result = await userService.getAllUsersFromDB(filters, option);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Users fetched successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
+const updateStatus = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await userService.updateStatusFromDB(id, req.body);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Status updated successfully",
+    data: result,
+  });
+});
+
 export const userController = {
   createAdmin,
   createDoctor,
   createPatient,
+  getAllUsers,
+  updateStatus,
 };

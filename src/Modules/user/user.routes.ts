@@ -32,7 +32,6 @@ router.post(
   userController.createDoctor
 );
 
-
 router.post(
   "/create-patient",
   upload.single("file"),
@@ -42,6 +41,18 @@ router.post(
   },
   validateRequest(userValidation.createPatient),
   userController.createPatient
+);
+
+router.get(
+  "/",
+  auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+  userController.getAllUsers
+);
+
+router.patch(
+  "/:id/status",
+  auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+  userController.updateStatus
 );
 
 export const userRouter = router;
