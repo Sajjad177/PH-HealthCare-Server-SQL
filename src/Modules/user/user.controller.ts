@@ -6,6 +6,7 @@ import { StatusCodes } from "http-status-codes";
 import pick from "../../shared/pick";
 import { adminFilterFields } from "../admin/admin.constant";
 import { userFilterableFields } from "./user.constant";
+import { IAuthUser } from "../../interface/common";
 
 const createAdmin = async (req: Request, res: Response) => {
   try {
@@ -73,16 +74,35 @@ const updateStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getMyProfile = catchAsync(async (req: Request, res: Response) => {
-  const result = await userService.getMyProfileFromDB(req.user);
+const getMyProfile = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const result = await userService.getMyProfileFromDB(req.user as IAuthUser);
 
-  sendResponse(res, {
-    statusCode: StatusCodes.OK,
-    success: true,
-    message: "Profile fetched successfully",
-    data: result,
-  });
-});
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: "Profile fetched successfully",
+      data: result,
+    });
+  }
+);
+
+const updateMyProfile = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const result = await userService.updateMyProfileFromDB(
+      req.user as IAuthUser,
+      req.body,
+      req.file
+    );
+
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: "Profile updated successfully",
+      data: result,
+    });
+  }
+);
 
 export const userController = {
   createAdmin,
@@ -91,4 +111,5 @@ export const userController = {
   getAllUsers,
   updateStatus,
   getMyProfile,
+  updateMyProfile,
 };
