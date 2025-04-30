@@ -55,4 +55,10 @@ router.patch(
   userController.updateStatus
 );
 
+router.get(
+  "/my-profile",
+  auth(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.DOCTOR, UserRole.PATIENT),
+  userController.getMyProfile
+);
+
 export const userRouter = router;
